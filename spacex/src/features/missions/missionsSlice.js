@@ -12,7 +12,7 @@ const missionSlice = createSlice({
     name: 'missions',
     initialState: {
         missions: [],
-        status: null
+        loading: true
     },
     reducers: {
         handleReservations: (state, action) => {
@@ -29,7 +29,24 @@ const missionSlice = createSlice({
                 });
                 state.missionList = newMissions;
               }
-        }
+        },
+        extraReducers: (builder) => {
+            builder
+              .addCase(fetchMissions.fulfilled, (state, action) => {
+                const res = action.payload.map(({ mission_id, mission_name, description }) => {
+                  return { mission_id, mission_name, description, reserved: false };
+                });
+                state.loading = false;
+                state.missionList = res;
+              })
+              .addCase(fetchMissions.pending, (state) => {
+                state.loading = true;
+              })
+              .addCase(fetchMissions.rejected, (state) => {
+                state.loading = false;
+              });
+          }
+          
     },
     
 );
